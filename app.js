@@ -6,6 +6,10 @@ const userRouter = require('./routes/userRoutes');
 
 const app = express()
 
+app.get('/', (req, res) => {
+  res.end('Connected to the hosted server')
+})
+
 app.use(express.json());
 
 app.use(compression())
