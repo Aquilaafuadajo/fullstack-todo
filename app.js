@@ -4,11 +4,11 @@ const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController')
 const userRouter = require('./routes/userRoutes');
 
-const app = express(compression())
+const app = express()
 
 app.use(express.json());
 
-app.use()
+app.use(compression())
 
 app.use('/api/v1/users', userRouter)
 
