@@ -4,11 +4,12 @@ const router = express.Router();
 
 router
   .route('/')
-  .post(listController.createList)
+  .get(listController.protect, listController.getAllList)
+  .post(listController.protect, listController.createList)
 
-router
-  .route('/:uid')
-  .get(listController.getAllList)
+// router
+//   .route('/:uid')
+//   .get(listController.getAllList)
 
 router
   .route('/:id')

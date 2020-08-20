@@ -5,13 +5,8 @@ const User = require('../models/userModel')
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
 
-const signToken = id => {
-  return jwt.sign({id: id}, process.env.JWT_SECRET, {expiresIn: process.env.JWT_EXPIRES_IN});
-}
-
 exports.getAllList = catchAsync(async (req, res, next) => { 
-  console.log(req.params.uid)
-  const userLists = await List.find({ownerId: req.params.uid})
+  const userLists = await List.find({ownerId: req.user.id})
 
   if(!userLists) {
     return next(new AppError('No list found matching this id, please create a list'))
@@ -27,7 +22,10 @@ exports.getAllList = catchAsync(async (req, res, next) => {
 })
 
 exports.createList = catchAsync(async (req, res, next) => {
-  const newList = await List.create(req.body)
+  const newList = await List.create({
+    name: req.body.name,
+    ownerId: req.user.id
+  })
   console.log('new List', newList)
   res.status(201).json({
     status: 'success',
@@ -56,7 +54,7 @@ exports.updateList = catchAsync(async (req, res, next) => {
 })
 
 exports.deleteList = catchAsync(async (req, res, next) => {
-  const list = await List.findByIdAndDelete(req.param.id)
+  const list = await List.findByIdAndDelete(req.params.id)
 
   if(!list) {
     return next(new AppError('No list found with that ID', 404))
@@ -131,4 +129,27 @@ exports.deleteTask = catchAsync(async (req, res, next) => {
   })
 })
 
+exports.protect = catchAsync( async (req, res, next) => {
+  // 1. Getting token and checking if it exists
+  let token;
+  if(req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
 
+    token = req.headers.authorization.split(' ')[1]
+  }
+  if(!token) {
+    return next(new AppError('You are not logged in! Please log in to get access', 401))
+  }
+  // 2. Verification token
+  const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET)
+  console.log(decoded)
+
+  // 3. Check if user still exists
+  const currentUser = await User.findById(decoded.id)
+  if(!currentUser) {
+    return next(new AppError('This user belonging to this token no longer exist.', 401))
+  }
+
+  // GRANT ACCESS TO PROTECTED ROUTE
+  req.user = currentUser;
+  next()
+})
