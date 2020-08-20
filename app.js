@@ -15,7 +15,7 @@ app.use(express.json());
 
 //app.use(compression())
 
-app.use('/api/v1/users', userRouter)
+app.use('/api/v1/users', userRouter) 
 app.use('/api/v1/lists', listRouter)
 
 app.all('*', (req, res, next) => {
