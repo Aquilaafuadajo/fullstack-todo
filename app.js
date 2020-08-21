@@ -1,4 +1,5 @@
 const express = require('express');
+const cors = require('cors')
 //const compression = require('compression');
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController')
@@ -6,6 +7,8 @@ const userRouter = require('./routes/userRoutes');
 const listRouter = require('./routes/listRoutes');
 
 const app = express()
+app.use(cors())
+app.options('*', cors())
 
 app.get('/', (req, res) => {
   res.end('Connected to the hosted server')
